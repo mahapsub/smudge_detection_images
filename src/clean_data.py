@@ -17,12 +17,9 @@ def main():
     else:
         image_lst = images
 
-
+    #Iterate through sample images and generate a mean image
     for i in range(len(image_lst)):
         img = image_lst[i]
-        # print(type(img))
-        # print(img.shape)
-        # img = cv2.cvtColor(image_lst[i], cv2.COLOR_BGR2HSV)
         thresh += img
     thresh = thresh/len(image_lst)
     
@@ -32,16 +29,15 @@ def main():
     #plot1
     mean = thresh
 
-    # cv2.imwrite('01.png',thresh)
-    # print(thresh.shape)
-    # print(thresh)
     median_blur_size = 3
+    #Blur added here
     thresh = cv2.medianBlur(thresh,median_blur_size)
     thresh = cv2.cvtColor(thresh, cv2.COLOR_BGR2GRAY)
 
     #plot2
     bw_medianblur = thresh
 
+    #Thresholding techniques
     _,thresh1 = cv2.threshold(thresh, 100, 255, cv2.THRESH_BINARY)
     thresh2 = cv2.adaptiveThreshold(thresh,255,cv2.ADAPTIVE_THRESH_MEAN_C,\
             cv2.THRESH_BINARY,107,13)
@@ -49,13 +45,17 @@ def main():
     # blur = cv2.GaussianBlur(thresh,(5,5),0)
     # ret3,thresh4 = cv2.threshold(blur,105,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
     
-
+    #Select everything that is not thresholded (i.e find the mask)
     mask = cv2.bitwise_not(thresh2)
 
     #plot3
+
+
     mask_found = mask
     # contours, hierarchy = cv2.findContours(mask,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
     # cnt = contours[0]
+
+    #Determine the size and location of the mask
     M = cv2.moments(mask)
 
     #Uses the entire folder to find a random image
@@ -78,6 +78,8 @@ def main():
         #Applying Text
         cv2.putText(trial_img, "Smudge", (cX - 120, cY ),cv2.FONT_HERSHEY_SIMPLEX, 2, (145, 76, 0), 4)
 
+
+    #Generate plots. 
     fig, axs = plt.subplots(2, 3, figsize=(50, 30), sharey=True)
     axs[0][0].imshow(mean)
     axs[0][0].set_title('The average of {} imgs'.format(len(image_lst)))
@@ -94,6 +96,7 @@ def main():
     plt.show()
 
 def check_size(M):
+    #Makes sure that the smudge is an appropriate size.
     size = M['m00']
     # print('SIZE', size)
     if size > 50000 and  size < 250000:
@@ -137,9 +140,6 @@ def parse_data():
 
     return sample_lst
 
-
-
-
 def display_image(lst):
     '''
         Helper method to display data within window
@@ -150,8 +150,6 @@ def display_image(lst):
         
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-
-
 
 if __name__ == "__main__":
     main()
